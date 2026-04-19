@@ -4,7 +4,7 @@ You are implementing an onboarding / feature-discovery tour in an existing iOS a
 
 ## Prerequisites — verify before starting
 
-- Target is **iOS 26.0+**. If the app deploys to anything lower, stop and tell the user.
+- Target is **iOS 18.0+**. If the app deploys to anything lower, stop and tell the user.
 - Project uses **SwiftUI**. UIKit-only screens cannot host tutorial hints.
 - Swift 6 strict concurrency — the package assumes it.
 

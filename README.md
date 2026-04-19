@@ -2,13 +2,13 @@
 
 A lightweight SwiftUI library for overlaying guided hints on top of your app's UI. Tag any view with a short title and description, then activate a tour that dims the surrounding interface, cuts a rounded rectangle around the tagged view, and displays an info bubble next to it.
 
-Built for iOS 26 with Swift 6.2 and modern SwiftUI (`@Observable`, `@Entry`, anchor preferences).
+Built for iOS 18+ with Swift 6.2 and modern SwiftUI (`@Observable`, `@Entry`, anchor preferences).
 
 ## Requirements
 
-- iOS 26.0+
+- iOS 18.0+
 - Swift 6.2+
-- Xcode 26+
+- Xcode 16+
 
 ## Installation
 
