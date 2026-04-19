@@ -71,7 +71,24 @@ struct RootView: View {
 
 Tap anywhere on the overlay to advance to the next step. The final tap dismisses the tour. A persistent close button in the corner lets users quit at any time.
 
-### 3. Customize the look
+### 3. Support for `ScrollView`
+
+If your tagged views live inside a scroll view — especially lazy content like `LazyVStack` or `List` — apply `.tutorialScrollContainer()` to the scroll view so the engine can scroll to each step before highlighting it:
+
+```swift
+ScrollView {
+    LazyVStack {
+        Text("Pan").tutorialHint(title: "Pan", description: "Drag to move.")
+        Text("Zoom").tutorialHint(title: "Zoom", description: "Pinch to zoom.")
+        // ...
+    }
+}
+.tutorialScrollContainer()
+```
+
+The modifier is safe to apply to multiple scroll views in the same hierarchy; each only reacts to step ids it recognizes.
+
+### 4. Customize the look
 
 Attach `.tutorialStyle(_:)` anywhere above the `.contextualTutorial` modifier:
 

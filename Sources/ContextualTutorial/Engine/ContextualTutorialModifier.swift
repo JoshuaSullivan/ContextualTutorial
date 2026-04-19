@@ -11,13 +11,15 @@ struct ContextualTutorialModifier: ViewModifier {
     @Environment(\.tutorialStyle) private var style
 
     func body(content: Content) -> some View {
-        content.overlayPreferenceValue(TutorialPreferenceKey.self) { steps in
-            TutorialOverlayHost(
-                steps: steps,
-                isActive: $isActive,
-                controller: controller,
-                style: style
-            )
-        }
+        content
+            .environment(\.tutorialCurrentStepID, controller.currentStep?.id)
+            .overlayPreferenceValue(TutorialPreferenceKey.self) { steps in
+                TutorialOverlayHost(
+                    steps: steps,
+                    isActive: $isActive,
+                    controller: controller,
+                    style: style
+                )
+            }
     }
 }

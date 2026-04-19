@@ -15,19 +15,21 @@ struct TutorialHintModifier: ViewModifier {
     let description: LocalizedStringKey
 
     func body(content: Content) -> some View {
-        content.anchorPreference(
-            key: TutorialPreferenceKey.self,
-            value: .bounds
-        ) { anchor in
-            [
-                TutorialStep(
-                    id: id,
-                    order: order,
-                    title: title,
-                    description: description,
-                    anchor: anchor
-                )
-            ]
-        }
+        content
+            .id(id)
+            .anchorPreference(
+                key: TutorialPreferenceKey.self,
+                value: .bounds
+            ) { anchor in
+                [
+                    TutorialStep(
+                        id: id,
+                        order: order,
+                        title: title,
+                        description: description,
+                        anchor: anchor
+                    )
+                ]
+            }
     }
 }
