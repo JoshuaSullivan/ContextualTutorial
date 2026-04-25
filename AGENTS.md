@@ -72,7 +72,7 @@ If any tagged view lives inside a `ScrollView`, `List`, or `Form`, add `.tutoria
 
 ```swift
 ScrollView {
-    LazyVStack {
+    VStack {
         ControlRow().tutorialHint(title: "Zoom", description: "…")
         // more rows, possibly off-screen
     }
@@ -80,7 +80,9 @@ ScrollView {
 .tutorialScrollContainer()
 ```
 
-Safe to apply to multiple scroll views — each only reacts to step ids in its own subtree. Works with lazy content; `ScrollPosition` will render off-screen rows on demand.
+How it works: the container injects a `TutorialScrollScope` into the environment. Every descendant `.tutorialHint` registers its frame with that scope via a named coordinate space. When the engine activates a step the scope knows about, the container computes a scroll-y offset that centers the step in the visible area and animates the scroll programmatically. There's no `.id()` involvement, so anchor capture for the cutout is unaffected.
+
+Safe to apply to multiple scroll views — each owns its own scope, and a hint registers with the **innermost** enclosing scope only.
 
 ## Step 6: Styling (optional)
 
@@ -117,13 +119,15 @@ See `TutorialStyle` for all fields (cutout padding, bubble spacing/max width/cor
 
 - **`.contextualTutorial` attached too deep in the hierarchy.** Overlay needs to cover the full screen. Put it on the outermost scene-root view.
 - **Tagged view is a `Spacer` or `EmptyView`.** Cutout will be zero-sized and the overlay will fall back to dim-only. Tag a concrete view.
+- **Tagged views inside `LazyVStack` / `List`.** Off-screen rows aren't rendered, so they don't publish anchor preferences and don't register with the scroll scope. The engine never sees them as steps. If you need a deterministic tour over many items, prefer a non-lazy `VStack` inside the `ScrollView`. Lazy containers work for items that have already been scrolled into view at least once during the session.
 - **Dynamic Type truncation in bubble.** The bubble caps at `bubbleMaxWidth` (default 280). If description is long, the bubble grows vertically — fine unless the screen is very short. Adjust via `TutorialStyle.bubbleMaxWidth` if needed.
 - **Multiple tours in the same hierarchy.** Nested `.contextualTutorial` is technically allowed (inner sees its subtree's preferences only) but not recommended. Use a single tour and sequence the steps.
 - **Tagging controls that modify state (e.g. TextField).** The overlay blocks hit-testing, so users cannot interact with the underlying control during the tour. Tutorial hints describe — they don't drive interaction.
+- **Forgetting `.tutorialScrollContainer()` on a `ScrollView`.** Steps below the initial fold won't scroll into view, and you'll see a "Step is off-screen; falling back to dim-only" debug log when those steps activate.
 - **Secrets in titles/descriptions.** Don't include user-specific PII in hint strings — they're static per build.
 
 ## When to push back
 
-- User asks for onboarding on a screen with heavy lazy rendering (long feed, infinite scroll). Remind them that only rendered cells contribute steps; fixed-count controls are the right target.
+- User asks for onboarding on a screen with heavy lazy rendering (long feed, infinite scroll). Lazy off-screen rows don't register with the scroll scope, so the engine can't reach them. Steer the tour toward fixed-count controls or non-lazy stacks.
 - User wants a step to advance *only* when the user taps the highlighted control itself. This library advances on any overlay tap. Don't try to hack around it — file a feature request instead.
 - User wants deeply custom bubble UI (connector line, arrow, per-step buttons). The current bubble is a fixed layout. Flag the limitation; connector lines are on the roadmap but not shipping.

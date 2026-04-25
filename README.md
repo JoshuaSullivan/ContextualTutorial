@@ -73,11 +73,11 @@ Tap anywhere on the overlay to advance to the next step. The final tap dismisses
 
 ### 3. Support for `ScrollView`
 
-If your tagged views live inside a scroll view — especially lazy content like `LazyVStack` or `List` — apply `.tutorialScrollContainer()` to the scroll view so the engine can scroll to each step before highlighting it:
+If your tagged views live inside a scroll view, apply `.tutorialScrollContainer()` to the scroll view so the engine can scroll each step into view before highlighting it:
 
 ```swift
 ScrollView {
-    LazyVStack {
+    VStack {
         Text("Pan").tutorialHint(title: "Pan", description: "Drag to move.")
         Text("Zoom").tutorialHint(title: "Zoom", description: "Pinch to zoom.")
         // ...
@@ -86,7 +86,11 @@ ScrollView {
 .tutorialScrollContainer()
 ```
 
-The modifier is safe to apply to multiple scroll views in the same hierarchy; each only reacts to step ids it recognizes.
+The modifier injects a scope into the environment; descendant `.tutorialHint` modifiers register their frames with that scope via a named coordinate space. When the engine activates a step, the container computes a scroll-y offset that centers the registered frame in the visible area and animates the scroll. No `.id()` matching is involved, so the cutout's anchor capture is unaffected.
+
+Safe to apply to multiple scroll views — each owns its own scope, and a hint registers with the **innermost** enclosing scope only.
+
+> Note: lazy containers (`LazyVStack`, `List`) only render visible rows. Off-screen rows don't publish anchor preferences and don't register with the scroll scope, so the engine can't reach them. Use a non-lazy `VStack` inside the `ScrollView` if you need a deterministic tour over many items.
 
 ### 4. Customize the look
 
